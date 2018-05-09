@@ -7,76 +7,72 @@ import RaisedButton from 'material-ui/RaisedButton';
 class App extends Component {
 
   state = {
-    counter: 0,
-    text: null
-
+    newTask: '',
+    tasks: null
   }
 
   componentDidMount() {
 
-    fetch('https://jfddl4-sandbox.firebaseio.com/szymon/counter/.json')
-      .then(function (response) {
-        return response.json();
+    fetch('https://jfddl4-sandbox.firebaseio.com/szymon/tasks/.json')
+      .then((response) => response.json())
+      .then((myJson) => {
+        const dataInArray = (
+          Object.entries(myJson)
+            .map(el => ({
+              key: el[0],
+              value: el[1]
+            }))
+        )
+
+        this.setState({ tasks: dataInArray })
       })
-      .then((myJson) => this.setState({ counter: myJson }))
-
-    fetch('https://jfddl4-sandbox.firebaseio.com/szymon/text/.json')
-      .then(function (response) {
-        return response.json();
-      })
-      .then((myJson) => this.setState({ text: myJson }))
-
-
-
-
   }
 
 
 
-  decHandler = () => {
-    this.setState({ counter: this.state.counter - 1 }, this.saveToDb)
-  }
 
-  increaseHandler = () => {
-    this.setState({ counter: this.state.counter + 1 }, this.saveToDb)
-  }
-  changeText = (newValue) => {
-    this.setState({ text: newValue })
+  newTaskHandler = (event, newValue) => {
+
+    this.setState({ newTask: newValue })
 
   }
 
-  saveToDb = () => fetch('https://jfddl4-sandbox.firebaseio.com/szymon/counter/.json',
-    {
-      method: 'PUT',
-      body: JSON.stringify(this.state.counter)
+
+  saveNewTask = () => {
+
+    fetch('https://jfddl4-sandbox.firebaseio.com/szymon/tasks/.json', {
+      method: 'POST', // or 'PUT'
+      body: JSON.stringify(this.state.newTask)
     })
 
-  postText = () => fetch('https://jfddl4-sandbox.firebaseio.com/szymon/text/.json',
-    {
-      method: 'PUT',
-      body: JSON.stringify(this.state.text)
-    })
+
+  }
 
   render() {
     return (
       <div className="App">
 
-        {this.state.text === null ? 'Ładowanie...' :
-          <div>
-            <h2>Text:{this.state.text}</h2>
-            <TextField
-              hintText="Type text"
-              onChange={(event, newValue) => this.changeText(newValue)}
-              value={this.state.text}
-            />
+        <TextField
+          hintText={'Type task'}
+          value={this.state.newTask}
+          onChange={this.newTaskHandler}
+        />
+        <RaisedButton
+          label={'Save'}
+          onClick={this.saveNewTask}
+        />
+        {
+          !this.state.tasks ? 
+          'Ładowanie' 
+          : 
+          this.state.tasks.map(
+            task => (
+            <div 
+            key={task.key}
+            onClick={}
+            > {task.value}</div> ))
 
-            <RaisedButton
-              label="Post"
-              primary={true}
-              className='App-btn App-btn-minus'
-              onClick={() => this.postText()}
-            />
-          </div>
+
 
         }
 
@@ -85,4 +81,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default App
