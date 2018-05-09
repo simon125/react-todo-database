@@ -2,13 +2,13 @@ import React, { Component } from 'react'
 import './App.css'
 
 import TextField from 'material-ui/TextField';
-
+import RaisedButton from 'material-ui/RaisedButton';
 
 class App extends Component {
 
   state = {
     counter: 0,
-    text: ''
+    text: null
 
   }
 
@@ -20,7 +20,7 @@ class App extends Component {
       })
       .then((myJson) => this.setState({ counter: myJson }))
 
-      fetch('https://jfddl4-sandbox.firebaseio.com/szymon/text/.json')
+    fetch('https://jfddl4-sandbox.firebaseio.com/szymon/text/.json')
       .then(function (response) {
         return response.json();
       })
@@ -41,8 +41,8 @@ class App extends Component {
     this.setState({ counter: this.state.counter + 1 }, this.saveToDb)
   }
   changeText = (newValue) => {
-    this.setState({text: newValue })
-   
+    this.setState({ text: newValue })
+
   }
 
   saveToDb = () => fetch('https://jfddl4-sandbox.firebaseio.com/szymon/counter/.json',
@@ -52,30 +52,34 @@ class App extends Component {
     })
 
   postText = () => fetch('https://jfddl4-sandbox.firebaseio.com/szymon/text/.json',
-  {
-    method: 'PUT',
-    body: JSON.stringify(this.state.text)
-  }) 
+    {
+      method: 'PUT',
+      body: JSON.stringify(this.state.text)
+    })
 
   render() {
     return (
       <div className="App">
-      <h2>Text:{this.state.text}</h2>
-      <TextField
-      hintText="Type text"
-      onChange={(event, newValue) => this.changeText(newValue)}
-      value={this.state.text}
-    />
-    <button
-     className='App-btn App-btn-minus' 
-     onClick={() => this.postText()}
-     
-     >Post text</button>
-      
 
-        <h1>{this.state.counter}</h1>
-        <button className='App-btn App-btn-minus' onClick={() => this.decHandler()}>-</button>
-        <button className='App-btn App-btn-plus' onClick={() => this.increaseHandler()}>+</button>
+        {this.state.text === null ? 'Ładowanie...' :
+          <div>
+            <h2>Text:{this.state.text}</h2>
+            <TextField
+              hintText="Type text"
+              onChange={(event, newValue) => this.changeText(newValue)}
+              value={this.state.text}
+            />
+
+            <RaisedButton
+              label="Post"
+              primary={true}
+              className='App-btn App-btn-minus'
+              onClick={() => this.postText()}
+            />
+          </div>
+
+        }
+
       </div>
     )
   }
